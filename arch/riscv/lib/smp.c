@@ -31,6 +31,14 @@ extern int riscv_send_ipi(int hart);
  */
 extern int riscv_clear_ipi(int hart);
 
+void hack_delay()
+{
+	for (int64_t i=0; i < 100000000; i++){
+		asm volatile("nop");
+	}
+	return;
+}
+
 static int send_ipi_many(struct ipi_data *ipi)
 {
 	ofnode node, cpus;
@@ -76,12 +84,10 @@ static int send_ipi_many(struct ipi_data *ipi)
 #if 1
 		//udelay(1000);
 //		printf("ipi: %d\n", reg);
-		int64_t a, b;
-		for (int64_t i=0; i < 100000000; i++){
-			asm volatile("nop");
-		}
+		hack_delay();
 #endif
 		ret = riscv_send_ipi(reg);
+		hack_delay();
 		if (ret) {
 			pr_err("Cannot send IPI to hart %d\n", reg);
 			return ret;
